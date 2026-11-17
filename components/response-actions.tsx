@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react'
 import { LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
 import { Attendee, AttendeeFields } from '@/components/attendee-fields'
 
-type Row = { id: string; full_name: string; phone: string; respondent_type: 'parent'|'alumni'|'student'|'family'|'friend'|'guest'|'other'; attendance: 'yes'|'no'|'maybe'; guests_total: number; adults: number; children: number; attendees: Attendee[]; arrival_slot: string|null; comment: string|null; created_at: string }
+type Row = { id: string; full_name: string; phone: string | null; respondent_type: 'parent'|'alumni'|'student'|'family'|'friend'|'guest'|'other'; attendance: 'yes'|'no'|'maybe'; guests_total: number; adults: number; children: number; attendees: Attendee[]; arrival_slot: string|null; comment: string|null; created_at: string }
 const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h']
 const respondentTypes = [['parent','Parent d’élève'],['alumni','Ancien(ne) élève'],['student','Élève'],['family','Membre de la famille'],['friend','Ami(e)'],['guest','Invité(e)'],['other','Autre']] as const
 const field = 'mt-1 w-full rounded-xl border border-[#e7e0e9] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#6a4b7e]'
@@ -35,7 +35,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [fullName, setFullName] = useState(row.full_name)
-  const [phone, setPhone] = useState(row.phone)
+  const [phone, setPhone] = useState(row.phone ?? '')
   const [respondentType, setRespondentType] = useState<Row['respondent_type']>(row.respondent_type)
   const [attendance, setAttendance] = useState(row.attendance)
   const [arrivalSlot, setArrivalSlot] = useState(row.arrival_slot ?? '')
@@ -47,7 +47,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
   function openEditor() {
     const state = getAttendeeState(row)
     setFullName(row.full_name)
-    setPhone(row.phone)
+    setPhone(row.phone ?? '')
     setRespondentType(row.respondent_type)
     setAttendance(row.attendance)
     setArrivalSlot(row.arrival_slot ?? '')
@@ -83,7 +83,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
       setError(result.error ?? 'Modification impossible.')
       return
     }
-    onSaved({ ...row, ...data })
+    onSaved({ ...row, ...data, phone: data.phone || null })
     setOpen(false)
   }
 
@@ -94,7 +94,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
         <div className="flex items-start justify-between gap-3"><div><h2 id={`edit-title-${row.id}`} className="text-lg font-semibold text-[#382746]">Modifier la réponse</h2><p className="mt-1 text-xs text-[#847b88]">Modifiez les coordonnées, le statut ou la liste des personnes.</p></div><button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="rounded-lg p-2 text-[#766e79] hover:bg-[#f4f0f6]"><X size={16}/></button></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="text-xs font-semibold text-[#514658]">Nom et prénom *<input required minLength={2} maxLength={120} value={fullName} onChange={event => setFullName(event.target.value)} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Téléphone *<input required minLength={6} maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} className={field}/></label>
+          <label className="text-xs font-semibold text-[#514658]">Téléphone <span className="font-normal text-[#968c9b]">(facultatif)</span><input maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} className={field}/></label>
           <label className="text-xs font-semibold text-[#514658]">Profil *<select value={respondentType} onChange={event => setRespondentType(event.target.value as Row['respondent_type'])} className={field}>{respondentTypes.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as Row['attendance'])} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>

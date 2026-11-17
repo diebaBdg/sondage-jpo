@@ -7,7 +7,7 @@ const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h�
 const attendeeSchema = z.object({ name: z.string().trim().min(2).max(120), type: z.enum(['adult','child']) })
 const patchSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(6).max(30),
+  phone: z.string().trim().max(30).optional(),
   respondent_type: z.enum(['parent','alumni','student','family','friend','guest','other']),
   attendance: z.enum(['yes','no','maybe']),
   guests_total: z.number().int().min(0).max(10),
@@ -30,7 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     ? value.attendees.length >= 1 && value.attendees[0].name === value.full_name && value.guests_total === value.attendees.length && value.adults === adults && value.children === value.attendees.length - adults && Boolean(value.arrival_slot)
     : value.guests_total === 0 && value.adults === 0 && value.children === 0 && value.attendees.length === 0 && value.arrival_slot === null
   if (!valid) return NextResponse.json({ error: 'Vérifiez les personnes présentes et le créneau.' }, { status: 400 })
-  const { error } = await getAdminDb().from('gpo_responses').update(value).eq('id', id)
+  const { error } = await getAdminDb().from('gpo_responses').update({ ...value, phone: value.phone && value.phone.length >= 6 ? value.phone : null }).eq('id', id)
   return error ? NextResponse.json({ error: 'Modification impossible' }, { status: 500 }) : NextResponse.json({ ok: true })
 }
 

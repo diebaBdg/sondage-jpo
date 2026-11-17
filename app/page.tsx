@@ -14,7 +14,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     <main className="min-h-screen bg-[#f8f6f1] text-[#292235]">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
         <Link href="/" className="flex items-center gap-2 sm:gap-3" aria-label="Rahmah Alumni, accueil">
-          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-UmZn9cC6MRFgdN8lPWofhb5Pd5VdmY.png" alt="Logo de l’école Rahmah" className="size-12 shrink-0 rounded-xl object-contain sm:size-14"/>
+          <img src="/icon.svg" alt="Logo de l’école Rahmah" className="size-12 shrink-0 rounded-xl object-contain sm:size-14"/>
           <span className="leading-tight"><span className="block text-sm font-extrabold tracking-[.16em]">RAHMAH</span><span className="text-[10px] font-semibold tracking-[.24em] text-[#806c8d]">ALUMNI</span></span>
         </Link>
         <Link href="/admin" className="rounded-full border border-[#e7e0e9] px-3 py-2 text-[11px] font-semibold text-[#665477] sm:px-4 sm:text-xs transition hover:bg-white">Espace organisateur</Link>

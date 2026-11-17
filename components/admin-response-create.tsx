@@ -7,7 +7,7 @@ import { Attendee, AttendeeFields } from '@/components/attendee-fields'
 export type AdminResponse = {
   id: string
   full_name: string
-  phone: string
+  phone: string | null
   respondent_type: 'parent' | 'alumni' | 'student' | 'family' | 'friend' | 'guest' | 'other'
   attendance: 'yes' | 'no' | 'maybe'
   guests_total: number
@@ -44,7 +44,7 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
     const adults = attendees.filter(person => person.type === 'adult').length
     const payload = {
       full_name: leadName.trim(),
-      phone: String(form.get('phone') ?? ''),
+      phone: String(form.get('phone') ?? '').trim(),
       respondent_type: String(form.get('respondent_type') ?? ''),
       attendance,
       guests_total: attendees.length,
@@ -78,7 +78,7 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
         <div className="mb-4"><h2 className="font-semibold text-[#493653]">Nouvelle réponse</h2><p className="mt-1 text-xs leading-5 text-[#847b88]">Ajoutez les coordonnées puis le nom et la catégorie de chaque personne présente.</p></div>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-xs font-semibold text-[#514658]">Nom et prénom *<input required minLength={2} maxLength={120} value={leadName} onChange={event => setLeadName(event.target.value)} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Téléphone WhatsApp *<input required name="phone" type="tel" minLength={6} maxLength={30} className={field}/></label>
+          <label className="text-xs font-semibold text-[#514658]">Téléphone WhatsApp <span className="font-normal text-[#968c9b]">(facultatif)</span><input name="phone" type="tel" maxLength={30} className={field}/></label>
           <label className="text-xs font-semibold text-[#514658]">Profil *<select required name="respondent_type" defaultValue="" className={field}><option value="" disabled>Choisir un profil</option>{respondentTypes.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as typeof attendance)} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>
