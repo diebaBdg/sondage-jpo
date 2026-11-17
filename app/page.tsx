@@ -22,8 +22,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       </header>
 
       <section className="relative isolate border-y border-[#eee9e2] bg-[#f2efe8]">
-        <div aria-hidden="true" className="absolute -right-24 -top-36 -z-10 size-[30rem] rounded-full border border-[#d9d1dc] sm:-right-12 sm:-top-64 sm:size-[42rem]" />
-        <div aria-hidden="true" className="absolute -right-8 -top-20 -z-10 size-[22rem] rounded-full border border-[#e1dbe1] sm:-right-4 sm:-top-48 sm:size-[34rem]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-36 -z-10 size-[30rem] rounded-full border border-[#d9d1dc] sm:-right-12 sm:-top-64 sm:size-[42rem]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-20 -z-10 size-[22rem] rounded-full border border-[#e1dbe1] sm:-right-4 sm:-top-48 sm:size-[34rem]" />
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-8 lg:py-20">
           <div className="max-w-3xl">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#dcd3e2] bg-white/70 px-3.5 py-2 text-[11px] font-bold tracking-[.13em] text-[#5a426d] sm:text-xs">
