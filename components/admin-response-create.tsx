@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react'
 import { Check, ChevronDown, LoaderCircle, Plus } from 'lucide-react'
-import { Attendee, AttendeeFields, AttendeeProfile, attendeeProfiles } from '@/components/attendee-fields'
+import { Attendee, AttendeeFields, AttendeeProfile, attendeeProfiles, getLegacyAttendeeType } from '@/components/attendee-fields'
 
 export type AdminResponse = {
   id: string
@@ -20,7 +20,6 @@ export type AdminResponse = {
 }
 
 type Companion = Attendee & { id: string }
-const respondentTypes = [['parent','Parent d’élève'],['alumni','Ancien(ne) élève'],['student','Élève'],['family','Membre de la famille'],['friend','Ami(e)'],['guest','Invité(e)'],['other','Autre']] as const
 const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h']
 const field = 'mt-1 w-full rounded-xl border border-[#e7e0e9] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#6a4b7e]'
 
@@ -30,7 +29,6 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
   const [error, setError] = useState('')
   const [attendance, setAttendance] = useState<'yes' | 'no' | 'maybe'>('yes')
   const [leadName, setLeadName] = useState('')
-  const [leadType, setLeadType] = useState<Attendee['type']>('adult')
   const [respondentType, setRespondentType] = useState<AttendeeProfile>('parent')
   const [companions, setCompanions] = useState<Companion[]>([])
   const [success, setSuccess] = useState('')
@@ -41,7 +39,7 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
     setError('')
     setSuccess('')
     const form = new FormData(event.currentTarget)
-    const attendees: Attendee[] = attendance === 'yes' ? [{ name: leadName.trim(), type: leadType, profile: respondentType }, ...companions.map(({ name, type, profile }) => ({ name: name.trim(), type, profile: profile ?? 'guest' }))] : []
+    const attendees: Attendee[] = attendance === 'yes' ? [{ name: leadName.trim(), type: getLegacyAttendeeType(respondentType), profile: respondentType }, ...companions.map(({ name, profile }) => ({ name: name.trim(), type: getLegacyAttendeeType(profile ?? 'guest'), profile: profile ?? 'guest' }))] : []
     const adults = attendees.filter(person => person.type === 'adult').length
     const payload = {
       full_name: leadName.trim(),
@@ -83,7 +81,7 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
           <label className="text-xs font-semibold text-[#514658]">Profil *<select required name="respondent_type" value={respondentType} onChange={event => setRespondentType(event.target.value as AttendeeProfile)} className={field}>{attendeeProfiles.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as typeof attendance)} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>
-        {attendance === 'yes' && <div className="mt-5 rounded-xl bg-[#f9f7fa] p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3><AttendeeFields leadName={leadName} leadType={leadType} leadProfile={respondentType} onLeadTypeChange={setLeadType} companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<span className="relative block"><select required name="arrival_slot" defaultValue="" className={field}><option value="" disabled>Choisir un créneau</option>{slots.map(slot => <option key={slot}>{slot}</option>)}</select><ChevronDown size={14} className="pointer-events-none absolute right-3 top-3 text-[#84758c]"/></span></label></div>}
+        {attendance === 'yes' && <div className="mt-5 rounded-xl bg-[#f9f7fa] p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3><AttendeeFields companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<span className="relative block"><select required name="arrival_slot" defaultValue="" className={field}><option value="" disabled>Choisir un créneau</option>{slots.map(slot => <option key={slot}>{slot}</option>)}</select><ChevronDown size={14} className="pointer-events-none absolute right-3 top-3 text-[#84758c]"/></span></label></div>}
         <label className="mt-4 block text-xs font-semibold text-[#514658]">Commentaire (facultatif)<textarea name="comment" maxLength={1000} rows={2} className={field}/></label>
         <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[#eee9f0] bg-white p-3"><input required name="consent" type="checkbox" className="mt-0.5 size-4 accent-[#55396b]"/><span className="text-xs leading-5 text-[#766e79]">La personne a donné son accord à l’utilisation de ces informations pour l’organisation de la JPO. *</span></label>
         {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
