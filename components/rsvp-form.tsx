@@ -68,7 +68,6 @@ export function RSVPForm({ editToken, initial }: { editToken: string; initial: R
       const response = await fetch('/api/rsvp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Une erreur est survenue. Réessayez.')
-      if (result.editUrl) sessionStorage.setItem('rahmah-edit-url', result.editUrl)
       setDone(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue.')
@@ -77,7 +76,7 @@ export function RSVPForm({ editToken, initial }: { editToken: string; initial: R
     }
   }
 
-  if (done) return <div className="rounded-[1.75rem] border border-[#e9e3ec] bg-white p-8 text-center shadow-[0_18px_55px_-35px_rgba(56,39,70,.3)] sm:p-12"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#e7f6f3] text-[#268a80]"><Check size={24}/></span><h2 className="mt-5 text-2xl font-semibold text-[#382746]">Merci pour votre réponse !</h2><p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#766e79]">L&apos;équipe RAHMAH ALUMNI vous remercie et a hâte de vous accueillir.</p><button onClick={async () => { const url = sessionStorage.getItem('rahmah-edit-url'); if (url) await navigator.clipboard.writeText(new URL(url, window.location.origin).toString()) }} className="mt-5 text-sm font-semibold text-[#5c4370] underline underline-offset-4">{isEdit ? 'Votre réponse a été modifiée' : 'Copier mon lien sécurisé de modification'}</button></div>
+  if (done) return <div className="rounded-[1.75rem] border border-[#e9e3ec] bg-white p-8 text-center shadow-[0_18px_55px_-35px_rgba(56,39,70,.3)] sm:p-12"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#e7f6f3] text-[#268a80]"><Check size={24}/></span><h2 className="mt-5 text-2xl font-semibold text-[#382746]">Merci pour votre réponse !</h2><p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#766e79]">L&apos;équipe RAHMAH ALUMNI vous remercie et a hâte de vous accueillir.</p></div>
 
   return <form onSubmit={submit} className="rounded-[1.75rem] border border-[#e9e3ec] bg-white p-5 shadow-[0_18px_55px_-35px_rgba(56,39,70,.3)] sm:p-8">
     <div className="grid gap-5 sm:grid-cols-2"><label className="text-xs font-semibold text-[#514658]">Nom et prénom *<input required name="full_name" autoComplete="name" maxLength={120} value={leadName} onChange={event => setLeadName(event.target.value)} placeholder="Ex. Aïcha Diallo" className={field}/></label><label className="text-xs font-semibold text-[#514658]">Numéro de téléphone <span className="font-normal text-[#968c9b]">(facultatif)</span><input name="phone" type="tel" autoComplete="tel" maxLength={30} defaultValue={initial?.phone ?? ''} placeholder="Ex. +221 77 000 00 00" className={field}/></label></div>
