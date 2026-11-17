@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/admin-auth'
 import { getAdminDb } from '@/lib/data'
 
 const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h'] as const
-const attendeeSchema = z.object({ name: z.string().trim().min(2).max(120), type: z.enum(['adult','child']) })
+const attendeeSchema = z.object({ name: z.string().trim().min(2).max(120), type: z.enum(['adult','child']), profile: z.enum(['parent','alumni','student','family','friend','guest','other']).optional() })
 const schema = z.object({
   full_name: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(30).optional(),

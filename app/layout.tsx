@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'JPO — Journée portes ouvertes | École RAHMAH',
-  description: 'Confirmez votre présence à la JPO de l’école RAHMAH, indiquez le nombre de participants et votre heure d’arrivée entre 9 h et 17 h.',
-  applicationName: 'RAHMAH ALUMNI',
+  title: 'Journée portes ouvertes | École Rahmah',
+  description: 'Confirmez votre présence à la journée portes ouvertes de l’école Rahmah et indiquez le nombre de personnes qui vous accompagneront.',
+  applicationName: 'Rahmah',
 }
 export const viewport: Viewport = { colorScheme:'light', themeColor:'#f8f6f1', width:'device-width', initialScale:1 }
 export default function RootLayout({children}:{children:React.ReactNode}) {

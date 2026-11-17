@@ -11,7 +11,6 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [resetNotice, setResetNotice] = useState('')
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -25,38 +24,6 @@ export default function AdminLogin() {
     }
     router.push('/admin/dashboard')
     router.refresh()
-  }
-
-  async function requestPasswordReset() {
-    const normalizedEmail = email.trim().toLowerCase()
-    if (!normalizedEmail) {
-      setError('Saisissez votre adresse e-mail.')
-      return
-    }
-
-    setBusy(true)
-    setError('')
-    setResetNotice('')
-
-    try {
-      const callbackUrl = new URL('/auth/callback', window.location.origin)
-      callbackUrl.searchParams.set('next', '/auth/set-password')
-      const { error: resetError } = await createClient().auth.resetPasswordForEmail(
-        normalizedEmail,
-        { redirectTo: callbackUrl.toString() },
-      )
-      if (resetError) {
-        setError(resetError.status === 429 || resetError.code === 'over_email_send_rate_limit'
-          ? 'Trop de demandes. Réessayez plus tard.'
-          : 'Impossible d’envoyer le lien de réinitialisation. Réessayez plus tard.')
-        return
-      }
-      setResetNotice('Si un compte existe pour cette adresse, un lien de réinitialisation a été envoyé.')
-    } catch {
-      setError('Impossible d’envoyer le lien de réinitialisation. Réessayez plus tard.')
-    } finally {
-      setBusy(false)
-    }
   }
 
   return (
@@ -82,8 +49,6 @@ export default function AdminLogin() {
           {busy && <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />}
           {busy ? 'Connexion…' : 'Se connecter'}
         </button>
-        <button type="button" onClick={requestPasswordReset} disabled={busy} className="mt-3 w-full text-center text-sm font-semibold text-[#644c75] underline underline-offset-4 disabled:opacity-60">Mot de passe oublié ?</button>
-        {resetNotice && <p role="status" className="mt-3 text-center text-sm leading-5 text-[#604a70]">{resetNotice}</p>}
         <p className="mt-4 text-center text-xs leading-5 text-[#766e79]">L’accès reste réservé aux administrateurs autorisés.</p>
       </form>
     </main>
