@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react'
 import { LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
-import { Attendee, AttendeeFields } from '@/components/attendee-fields'
+import { Attendee, AttendeeFields, AttendeeProfile } from '@/components/attendee-fields'
 
 type Row = { id: string; full_name: string; phone: string | null; respondent_type: 'parent'|'alumni'|'student'|'family'|'friend'|'guest'|'other'; attendance: 'yes'|'no'|'maybe'; guests_total: number; adults: number; children: number; attendees: Attendee[]; arrival_slot: string|null; comment: string|null; created_at: string }
 const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h']
@@ -62,7 +62,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
     event.preventDefault()
     setBusy(true)
     setError('')
-    const attendees: Attendee[] = attendance === 'yes' ? [{ name: fullName.trim(), type: leadType }, ...companions.map(({ name, type }) => ({ name: name.trim(), type }))] : []
+    const attendees: Attendee[] = attendance === 'yes' ? [{ name: fullName.trim(), type: leadType, profile: respondentType as AttendeeProfile }, ...companions.map(({ name, type, profile }) => ({ name: name.trim(), type, profile: profile ?? 'guest' }))] : []
     const adults = attendees.filter(person => person.type === 'adult').length
     const data = {
       full_name: fullName.trim(),
@@ -98,7 +98,7 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
           <label className="text-xs font-semibold text-[#514658]">Profil *<select value={respondentType} onChange={event => setRespondentType(event.target.value as Row['respondent_type'])} className={field}>{respondentTypes.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as Row['attendance'])} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>
-        {attendance === 'yes' && <div className="mt-4 rounded-xl bg-[#f9f7fa] p-3 sm:p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3>{!row.attendees?.length&&row.guests_total>1&&<p className="mt-2 rounded-lg bg-[#f7f1e4] p-3 text-xs leading-5 text-[#806b3f]">Cette ancienne réponse ne contient pas les noms des accompagnants. Remplacez « Nom non renseigné » pour enregistrer leurs noms.</p>}<AttendeeFields leadName={fullName} leadType={leadType} onLeadTypeChange={setLeadType} companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<select required value={arrivalSlot} onChange={event => setArrivalSlot(event.target.value)} className={field}><option value="">Choisir un créneau</option>{slots.map(slot=><option key={slot}>{slot}</option>)}</select></label></div>}
+        {attendance === 'yes' && <div className="mt-4 rounded-xl bg-[#f9f7fa] p-3 sm:p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3>{!row.attendees?.length&&row.guests_total>1&&<p className="mt-2 rounded-lg bg-[#f7f1e4] p-3 text-xs leading-5 text-[#806b3f]">Cette ancienne réponse ne contient pas les noms des accompagnants. Remplacez « Nom non renseigné » pour enregistrer leurs noms.</p>}<AttendeeFields leadName={fullName} leadType={leadType} leadProfile={respondentType} onLeadTypeChange={setLeadType} companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<select required value={arrivalSlot} onChange={event => setArrivalSlot(event.target.value)} className={field}><option value="">Choisir un créneau</option>{slots.map(slot=><option key={slot}>{slot}</option>)}</select></label></div>}
         <label className="mt-4 block text-xs font-semibold text-[#514658]">Commentaire<textarea maxLength={1000} rows={2} value={comment} onChange={event => setComment(event.target.value)} className={field}/></label>
         {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end"><button type="button" onClick={() => setOpen(false)} className="min-h-10 rounded-xl border border-[#e7e0e9] px-4 text-sm font-semibold text-[#604a70]">Annuler</button><button disabled={busy} className="flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#4b3260] px-4 text-sm font-semibold text-white disabled:opacity-60">{busy ? <LoaderCircle size={15} className="animate-spin"/> : <Save size={15}/>} Enregistrer</button></div>

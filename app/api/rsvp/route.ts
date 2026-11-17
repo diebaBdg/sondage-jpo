@@ -3,7 +3,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
 import { getAdminDb } from '@/lib/data'
 
-const attendeeSchema = z.object({ name:z.string().trim().min(2).max(120), type:z.enum(['adult','child']) })
+const attendeeSchema = z.object({ name:z.string().trim().min(2).max(120), type:z.enum(['adult','child']), profile:z.enum(['parent','alumni','student','family','friend','guest','other']).optional() })
 const schema = z.object({ full_name:z.string().trim().min(2).max(120), phone:z.string().trim().max(30).optional(), respondent_type:z.enum(['parent','alumni','student','family','friend','guest','other']), attendance:z.enum(['yes','no','maybe']), guests_total:z.coerce.number().int().min(0).max(10), adults:z.coerce.number().int().min(0).max(10), children:z.coerce.number().int().min(0).max(10), attendees:z.array(attendeeSchema).max(10).default([]), arrival_slot:z.string().max(40).nullable().optional(), comment:z.string().trim().max(1000).optional(), editToken:z.string().max(150).optional() })
 const slots = new Set(['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h'])
 const hash = (token:string) => createHash('sha256').update(token).digest('hex')
