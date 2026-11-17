@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function AdminLogin() {
   const router = useRouter()
-  const [email, setEmail] = useState('dienabafilybodiang@gmail.com')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')

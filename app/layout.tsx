@@ -1,3 +1,5 @@
+import type { Metadata, Viewport } from 'next'
+
 export const metadata: Metadata = {
   title: 'JPO — Journée portes ouvertes | École RAHMAH',
   description: 'Confirmez votre présence à la JPO de l’école RAHMAH, indiquez le nombre de participants et votre heure d’arrivée entre 9 h et 17 h.',
