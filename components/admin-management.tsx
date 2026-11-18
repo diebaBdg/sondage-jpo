@@ -29,7 +29,9 @@ export function AdminManagement({ initialAdmins }: { initialAdmins: AdminAccount
     }
     setAdmins(current => [...current, result.admin])
     setEmail('')
-    setNotice('Administrateur ajouté. Un compte de connexion associé à cette adresse est nécessaire pour accéder à l’espace.')
+    setNotice(result.invite_sent === false
+      ? 'Administrateur ajouté, mais l’e-mail d’invitation n’a pas pu partir. Créez le compte dans le tableau Supabase.'
+      : 'Administrateur ajouté. Un e-mail d’invitation vient de partir pour qu’il choisisse son mot de passe.')
   }
 
   async function removeAdmin(admin: AdminAccount) {

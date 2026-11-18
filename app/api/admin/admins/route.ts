@@ -18,7 +18,14 @@ export async function POST(request: Request) {
 
   if (error?.code === '23505') return NextResponse.json({ error: 'Cette adresse est déjà administratrice.' }, { status: 409 })
   if (error || !data) return NextResponse.json({ error: 'Impossible d’ajouter cet administrateur.' }, { status: 500 })
-  return NextResponse.json({ admin: data }, { status: 201 })
+
+  const origin = new URL(request.url).origin
+  const { error: inviteError } = await getAdminDb().auth.admin.inviteUserByEmail(body.data.email, {
+    redirectTo: `${origin}/auth/callback?next=/auth/set-password`,
+  })
+  const inviteSent = !inviteError
+
+  return NextResponse.json({ admin: data, invite_sent: inviteSent }, { status: 201 })
 }
 
 export async function DELETE(request: Request) {
