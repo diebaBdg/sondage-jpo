@@ -50,10 +50,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#392d43] sm:text-3xl">Quelques infos, et c&apos;est noté.</h2>
           <p className="mt-3 max-w-sm text-sm leading-6 text-[#77717b]">Dites-nous si vous serez des nôtres et combien de personnes vous accompagneront.</p>
           <a href="#formulaire" className="mt-6 hidden items-center gap-2 text-xs font-semibold text-[#685276] hover:text-[#3f2e4b] lg:inline-flex">Remplir le formulaire <ArrowDown size={14} aria-hidden="true" /></a>
-          <div className="mt-7 hidden rounded-2xl border border-[#ebe6e9] bg-white/75 p-4 text-xs leading-5 text-[#77717b] lg:block">
-            <p className="font-semibold text-[#50445a]">Un changement de programme ?</p>
-            <p className="mt-1">Vous pourrez modifier votre réponse grâce au lien sécurisé envoyé après validation.</p>
-          </div>
         </aside>
         <div id="formulaire" className="min-w-0 scroll-mt-8">
           <RSVPForm editToken={edit ?? ''} initial={existing} />
