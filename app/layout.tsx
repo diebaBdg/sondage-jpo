@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Journée portes ouvertes | École Rahmah',
-  description: 'Confirmez votre présence à la journée portes ouvertes de l’école Rahmah et indiquez le nombre de personnes qui vous accompagneront.',
+  title: 'RAHMAH – 25 ans | Sondage JPO',
+  description: 'La famille RAHMAH se retrouve ! À l’occasion de nos 25 ans, aidez-nous à mieux organiser votre accueil pour la Journée Portes Ouvertes en répondant à ce court sondage.',
   applicationName: 'Rahmah',
 }
 export const viewport: Viewport = { colorScheme:'light', themeColor:'#f8f6f1', width:'device-width', initialScale:1 }

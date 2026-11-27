@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { AdminDashboard } from '@/components/admin-dashboard'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminDb, getAdminRole, isAdminEmail } from '@/lib/data'
+import { defaultArrivalSlots, normalizeArrivalSlots } from '@/lib/event'
 
 export default async function DashboardPage() {
   const auth = await createClient()
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   const db = getAdminDb()
   const [responsesResult, settingsResult, adminsResult] = await Promise.all([
     db.from('gpo_responses').select('id,full_name,phone,respondent_type,attendance,guests_total,adults,children,attendees,arrival_slot,comment,created_at').order('created_at', { ascending: false }).limit(5000),
-    db.from('gpo_settings').select('event_date,address').eq('id', 1).maybeSingle(),
+    db.from('gpo_settings').select('event_name,event_date,opening_hours,address,intro_text,confirmation_message,survey_open,arrival_slots').eq('id', 1).maybeSingle(),
     role?.is_owner
       ? db.from('gpo_admins').select('email,is_owner,created_at').order('created_at', { ascending: true })
       : Promise.resolve({ data: [], error: null }),
@@ -23,7 +24,9 @@ export default async function DashboardPage() {
 
   return <AdminDashboard
     responses={responsesResult.error ? [] : responsesResult.data ?? []}
-    settings={settingsResult.data ?? { event_date: null, address: null }}
+    settings={settingsResult.data
+      ? { ...settingsResult.data, arrival_slots: normalizeArrivalSlots(settingsResult.data.arrival_slots) }
+      : { event_name: null, event_date: null, opening_hours: null, address: null, intro_text: null, confirmation_message: null, survey_open: true, arrival_slots: defaultArrivalSlots }}
     admins={adminsResult.data ?? []}
     canManageAdmins={Boolean(role?.is_owner)}
   />
