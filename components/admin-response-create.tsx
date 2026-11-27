@@ -8,7 +8,7 @@ export type AdminResponse = {
   id: string
   full_name: string
   phone: string | null
-  respondent_type: 'parent' | 'alumni' | 'student' | 'family' | 'friend' | 'guest' | 'other'
+  respondent_type: AttendeeProfile
   attendance: 'yes' | 'no' | 'maybe'
   guests_total: number
   adults: number
@@ -20,16 +20,15 @@ export type AdminResponse = {
 }
 
 type Companion = Attendee & { id: string }
-const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h']
 const field = 'mt-1 w-full rounded-xl border border-[#e7e0e9] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#6a4b7e]'
 
-export function AdminResponseCreate({ onCreated }: { onCreated: (response: AdminResponse) => void }) {
+export function AdminResponseCreate({ onCreated, slots }: { onCreated: (response: AdminResponse) => void; slots: string[] }) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [attendance, setAttendance] = useState<'yes' | 'no' | 'maybe'>('yes')
   const [leadName, setLeadName] = useState('')
-  const [respondentType, setRespondentType] = useState<AttendeeProfile>('parent')
+  const [respondentType, setRespondentType] = useState<AttendeeProfile>('alumni')
   const [companions, setCompanions] = useState<Companion[]>([])
   const [success, setSuccess] = useState('')
 
@@ -77,8 +76,8 @@ export function AdminResponseCreate({ onCreated }: { onCreated: (response: Admin
         <div className="mb-4"><h2 className="font-semibold text-[#493653]">Nouvelle réponse</h2><p className="mt-1 text-xs leading-5 text-[#847b88]">Ajoutez les coordonnées puis le nom et la catégorie de chaque personne présente.</p></div>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-xs font-semibold text-[#514658]">Nom et prénom *<input required minLength={2} maxLength={120} value={leadName} onChange={event => setLeadName(event.target.value)} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Téléphone WhatsApp <span className="font-normal text-[#968c9b]">(facultatif)</span><input name="phone" type="tel" maxLength={30} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Profil *<select required name="respondent_type" value={respondentType} onChange={event => setRespondentType(event.target.value as AttendeeProfile)} className={field}>{attendeeProfiles.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
+          <label className="text-xs font-semibold text-[#514658]">Numéro WhatsApp *<input required name="phone" type="tel" minLength={6} maxLength={30} className={field}/></label>
+          <label className="text-xs font-semibold text-[#514658]">Vous êtes *<select required value={respondentType} onChange={event => setRespondentType(event.target.value as AttendeeProfile)} className={field}>{attendeeProfiles.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as typeof attendance)} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>
         {attendance === 'yes' && <div className="mt-5 rounded-xl bg-[#f9f7fa] p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3><AttendeeFields companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<span className="relative block"><select required name="arrival_slot" defaultValue="" className={field}><option value="" disabled>Choisir un créneau</option>{slots.map(slot => <option key={slot}>{slot}</option>)}</select><ChevronDown size={14} className="pointer-events-none absolute right-3 top-3 text-[#84758c]"/></span></label></div>}

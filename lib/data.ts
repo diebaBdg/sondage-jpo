@@ -1,5 +1,6 @@
 import 'server-only'
 import { createClient } from '@supabase/supabase-js'
+import { EventSettings, defaultArrivalSlots, normalizeArrivalSlots } from '@/lib/event'
 
 export function getAdminDb() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -16,8 +17,13 @@ export async function getResponseForEdit(token: string) {
   } catch { return null }
 }
 
-export async function getEventSettings() {
-  try { const { data } = await getAdminDb().from('gpo_settings').select('event_date,address').eq('id',1).maybeSingle(); return data ?? { event_date: null, address: null } } catch { return { event_date: null, address: null } }
+export async function getEventSettings(): Promise<EventSettings> {
+  try {
+    const { data } = await getAdminDb().from('gpo_settings').select('event_name,event_date,opening_hours,address,intro_text,confirmation_message,survey_open,arrival_slots').eq('id', 1).maybeSingle()
+    return data ? { ...data, arrival_slots: normalizeArrivalSlots(data.arrival_slots) } : { event_name: null, event_date: null, opening_hours: null, address: null, intro_text: null, confirmation_message: null, survey_open: true, arrival_slots: defaultArrivalSlots }
+  } catch {
+    return { event_name: null, event_date: null, opening_hours: null, address: null, intro_text: null, confirmation_message: null, survey_open: true, arrival_slots: defaultArrivalSlots }
+  }
 }
 export async function getAdminRole(email?: string) {
   if (!email) return null

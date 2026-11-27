@@ -2,19 +2,24 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin-auth'
 import { getAdminDb } from '@/lib/data'
+import { normalizeArrivalSlots } from '@/lib/event'
 
-const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h'] as const
-const attendeeSchema = z.object({ name: z.string().trim().min(2).max(120), type: z.enum(['adult','child']), profile: z.enum(['parent','alumni','student','family','friend','guest','other']).optional() })
+const attendeeSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  type: z.enum(['adult', 'child']),
+  profile: z.enum(['parent', 'alumni', 'student', 'staff', 'family', 'friend', 'guest', 'other']).optional(),
+})
+
 const patchSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
-  phone: z.string().trim().max(30).optional(),
-  respondent_type: z.enum(['parent','alumni','student','family','friend','guest','other']),
-  attendance: z.enum(['yes','no','maybe']),
+  phone: z.string().trim().min(6).max(30),
+  respondent_type: z.enum(['parent', 'alumni', 'student', 'staff', 'family', 'friend', 'guest', 'other']),
+  attendance: z.enum(['yes', 'no', 'maybe']),
   guests_total: z.number().int().min(0).max(10),
   adults: z.number().int().min(0).max(10),
   children: z.number().int().min(0).max(10),
   attendees: z.array(attendeeSchema).max(10),
-  arrival_slot: z.enum(slots).nullable(),
+  arrival_slot: z.string().max(40).nullable(),
   comment: z.string().max(1000).nullable(),
 })
 
@@ -25,12 +30,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const parsed = patchSchema.safeParse(await request.json())
   if (!parsed.success) return NextResponse.json({ error: 'Réponse invalide' }, { status: 400 })
   const value = parsed.data
+
+  const db = getAdminDb()
+  const { data: settings } = await db.from('gpo_settings').select('arrival_slots').eq('id', 1).maybeSingle()
+  const validSlots = new Set(normalizeArrivalSlots(settings?.arrival_slots))
   const adults = value.attendees.filter(person => person.type === 'adult').length
   const valid = value.attendance === 'yes'
-    ? value.attendees.length >= 1 && value.attendees[0].name === value.full_name && value.guests_total === value.attendees.length && value.adults === adults && value.children === value.attendees.length - adults && Boolean(value.arrival_slot)
+    ? value.attendees.length >= 1 && value.attendees[0].name === value.full_name && value.guests_total === value.attendees.length && value.adults === adults && value.children === value.attendees.length - adults && Boolean(value.arrival_slot && validSlots.has(value.arrival_slot))
     : value.guests_total === 0 && value.adults === 0 && value.children === 0 && value.attendees.length === 0 && value.arrival_slot === null
   if (!valid) return NextResponse.json({ error: 'Vérifiez les personnes présentes et le créneau.' }, { status: 400 })
-  const { error } = await getAdminDb().from('gpo_responses').update({ ...value, phone: value.phone && value.phone.length >= 6 ? value.phone : null }).eq('id', id)
+
+  const { error } = await db.from('gpo_responses').update({ ...value, phone: value.phone }).eq('id', id)
   return error ? NextResponse.json({ error: 'Modification impossible' }, { status: 500 }) : NextResponse.json({ ok: true })
 }
 

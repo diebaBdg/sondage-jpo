@@ -4,15 +4,34 @@ import { FormEvent, useState } from 'react'
 import { LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
 import { Attendee, AttendeeFields, AttendeeProfile, attendeeProfiles, getLegacyAttendeeType, normalizeAttendeeProfile } from '@/components/attendee-fields'
 
-type Row = { id: string; full_name: string; phone: string | null; respondent_type: 'parent'|'alumni'|'student'|'family'|'friend'|'guest'|'other'; attendance: 'yes'|'no'|'maybe'; guests_total: number; adults: number; children: number; attendees: Attendee[]; arrival_slot: string|null; comment: string|null; created_at: string }
-const slots = ['09h–10h','10h–11h','11h–12h','12h–13h','13h–14h','14h–15h','15h–16h','16h–17h']
+type Row = {
+  id: string
+  full_name: string
+  phone: string | null
+  respondent_type: AttendeeProfile
+  attendance: 'yes' | 'no' | 'maybe'
+  guests_total: number
+  adults: number
+  children: number
+  attendees: Attendee[]
+  arrival_slot: string | null
+  comment: string | null
+  created_at: string
+}
+
 const field = 'mt-1 w-full rounded-xl border border-[#e7e0e9] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#6a4b7e]'
 type Companion = Attendee & { id: string }
 
 function getAttendeeState(row: Row) {
   const saved = row.attendees ?? []
-  if (saved.length) return {
-    companions: saved.slice(1).map((person, index) => ({ ...person, profile: normalizeAttendeeProfile(person.profile ?? (person.type === 'child' ? 'student' : 'guest')), id: `saved-${index}` })),
+  if (saved.length) {
+    return {
+      companions: saved.slice(1).map((person, index) => ({
+        ...person,
+        profile: normalizeAttendeeProfile(person.profile ?? (person.type === 'child' ? 'student' : 'guest')),
+        id: `saved-${index}`,
+      })),
+    }
   }
   if (row.attendance !== 'yes') return { companions: [] as Companion[] }
   const leadType: Attendee['type'] = row.adults > 0 ? 'adult' : 'child'
@@ -26,7 +45,7 @@ function getAttendeeState(row: Row) {
   }
 }
 
-export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete: () => void; onSaved: (row: Row) => void }) {
+export function ResponseActions({ row, onDelete, onSaved, slots }: { row: Row; onDelete: () => void; onSaved: (row: Row) => void; slots: string[] }) {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -91,8 +110,8 @@ export function ResponseActions({ row, onDelete, onSaved }: { row: Row; onDelete
         <div className="flex items-start justify-between gap-3"><div><h2 id={`edit-title-${row.id}`} className="text-lg font-semibold text-[#382746]">Modifier la réponse</h2><p className="mt-1 text-xs text-[#847b88]">Modifiez les coordonnées, le statut ou la liste des personnes.</p></div><button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="rounded-lg p-2 text-[#766e79] hover:bg-[#f4f0f6]"><X size={16}/></button></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="text-xs font-semibold text-[#514658]">Nom et prénom *<input required minLength={2} maxLength={120} value={fullName} onChange={event => setFullName(event.target.value)} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Téléphone <span className="font-normal text-[#968c9b]">(facultatif)</span><input maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} className={field}/></label>
-          <label className="text-xs font-semibold text-[#514658]">Profil *<select value={respondentType} onChange={event => setRespondentType(event.target.value as AttendeeProfile)} className={field}>{attendeeProfiles.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
+          <label className="text-xs font-semibold text-[#514658]">Numéro WhatsApp *<input required minLength={6} maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} className={field}/></label>
+          <label className="text-xs font-semibold text-[#514658]">Vous êtes *<select value={respondentType} onChange={event => setRespondentType(event.target.value as AttendeeProfile)} className={field}>{attendeeProfiles.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
           <label className="text-xs font-semibold text-[#514658]">Présence *<select value={attendance} onChange={event => setAttendance(event.target.value as Row['attendance'])} className={field}><option value="yes">Confirmée</option><option value="no">Déclinée</option><option value="maybe">Incertaine</option></select></label>
         </div>
         {attendance === 'yes' && <div className="mt-4 rounded-xl bg-[#f9f7fa] p-3 sm:p-4"><h3 className="text-sm font-semibold text-[#473653]">Personnes présentes</h3>{!row.attendees?.length&&row.guests_total>1&&<p className="mt-2 rounded-lg bg-[#f7f1e4] p-3 text-xs leading-5 text-[#806b3f]">Cette ancienne réponse ne contient pas les noms des accompagnants. Remplacez « Nom non renseigné » pour enregistrer leurs noms.</p>}<AttendeeFields companions={companions} onCompanionsChange={setCompanions}/><label className="mt-4 block text-xs font-medium text-[#64596a]">Heure d’arrivée estimée *<select required value={arrivalSlot} onChange={event => setArrivalSlot(event.target.value)} className={field}><option value="">Choisir un créneau</option>{slots.map(slot=><option key={slot}>{slot}</option>)}</select></label></div>}
